@@ -67,7 +67,12 @@ void GUIManager::genericGUIDelegate(MyGUI::Widget* _sender, int _left, int _top,
 
    string file_name = widget_script->getFileName();
    string script_name = widget_script->getScriptName();
-   string object_name = widget_script->getObjectName();
+   //string object_name = widget_script->getObjectName();
+
+   //obtain a reference to the combo box
+   MyGUI::ComboBox* combo = MyGUI::Gui::getInstance().findWidget<MyGUI::ComboBox>("Select_Object");
+   int selected_index = combo->getIndexSelected();
+   string object_name = combo->getItemNameAt(selected_index);
 
    render_manager->executeScript(file_name, script_name, object_name);
 }
@@ -106,6 +111,12 @@ void GUIManager::buildGUIFromXML(std::string file_name)
          if (buttons_node)
          {
             addButtons(buttons_node);
+         }
+
+         TiXmlNode* combo_boxes_node = gui_node->FirstChild("combo_boxes");
+         if (combo_boxes_node)
+         {
+            addComboBoxes(combo_boxes_node);
          }
       }
    }
@@ -148,6 +159,47 @@ void GUIManager::addButtons(TiXmlNode* buttons_node)
       widget_script->setScriptName(script_name_text);
       widget_script->setObjectName(object_name_text);
       all_widgets->tableInsert(widget_script);
+   }
+
+}
+
+void GUIManager::addComboBoxes(TiXmlNode* combo_boxes_node)
+{
+
+   for(TiXmlNode* combo_box_node = combo_boxes_node->FirstChild("combo_box"); combo_box_node; combo_box_node = combo_box_node->NextSibling())
+   {  
+      std::string name_text = GameManager::textFromChildNode(combo_box_node, "name");
+      std::string skin_text = GameManager::textFromChildNode(combo_box_node, "skin");
+      std::string position_text = GameManager::textFromChildNode(combo_box_node, "position");
+      float* position = GameManager::parseFloats(position_text, 2);
+      std::string size_text = GameManager::textFromChildNode(combo_box_node, "size");
+      float* size = GameManager::parseFloats(size_text, 2);
+      std::string align_text = GameManager::textFromChildNode(combo_box_node, "align");
+      std::string layer_text = GameManager::textFromChildNode(combo_box_node, "layer");
+      std::string font_size_text = GameManager::textFromChildNode(combo_box_node, "font");
+      int font_size = (int) GameManager::parseFloat(font_size_text);
+
+      std::string selected_index_text = GameManager::textFromChildNode(combo_box_node, "selected_index");
+      int selected_index = (int) GameManager::parseFloat(selected_index_text);
+
+      MyGUI::ComboBox* combo = my_gui->createWidget<MyGUI::ComboBox>(skin_text, position[0], position[1], size[0], size[1], MyGUI::Align::Default, layer_text, name_text);
+      combo->setFontHeight(font_size);
+      combo->setTextColour(MyGUI::Colour(0,0,0));
+      delete[] position;
+      delete[] size;
+
+      TiXmlNode* selections_node = combo_box_node->FirstChild("selections");
+      for(TiXmlNode* selection_node = selections_node->FirstChild("selection"); selection_node; selection_node = selection_node->NextSibling())
+      {
+         TiXmlElement* selection_element = (TiXmlElement*) selection_node->ToElement();
+         std::string selection_text = selection_element->GetText();
+         combo->addItem(selection_text);
+      }
+
+      combo->setIndexSelected(selected_index);
+      combo->setEditReadOnly(true);
+
+      //b->eventMouseButtonPressed += newDelegate(this, &GUIManager::genericGUIDelegate);
    }
 
 }

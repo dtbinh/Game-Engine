@@ -20,6 +20,7 @@ class GUIManager
       RenderManager* render_manager;
 
       void addButtons(TiXmlNode* buttons_node);
+      void addComboBoxes(TiXmlNode* combo_boxes_node);
 
    public:
       GUIManager(RenderManager* render_manager);
