@@ -26,6 +26,7 @@ class RenderManager
 
       void init();
       size_t window_handle;
+      Ogre::Real time_since_last_frame;
 
       void addSceneNodeChildren(TiXmlNode* xml_node, Ogre::SceneNode* parent_node);
 
@@ -38,6 +39,10 @@ class RenderManager
 
       void buildSceneFromXML(std::string file_name);
 
+      void setTimeSinceLastFrame(Ogre::Real time_since_last_frame);
+      void updateCameraRotation(float yaw, float pitch);
+      void updateCameraPosition(std::string& game_key);
+
       size_t getWindowHandle();
       int getWindowWidth();
       int getWindowHeight();
@@ -46,7 +51,8 @@ class RenderManager
 
       void mousePressed(int mouse_x, int mouse_y, int game_mouse);
       void mouseReleased(int mouse_x, int mouse_y, int game_mouse);
-      void mouseMoved(int mouse_x, int mouse_y);
+      void mouseMovedAbsolute(int mouse_x, int mouse_y);
+      void mouseMovedRelative(float mouse_x, float mouse_y);
 
       void startRendering();
       void stopRendering();

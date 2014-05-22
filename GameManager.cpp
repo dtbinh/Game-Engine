@@ -98,12 +98,15 @@ void GameManager::keyPressed(std::string game_key)
       delete this;
       exit(0);
    }
+
+   render_manager->updateCameraPosition(game_key);
 }
 void GameManager::keyReleased(std::string game_key) {}
 
 void GameManager::mouseMoved(int mouse_x, int mouse_y, float mouse_x_rel, float mouse_y_rel)
 {
-   render_manager->mouseMoved(mouse_x, mouse_y);
+   render_manager->mouseMovedAbsolute(mouse_x, mouse_y);
+   render_manager->mouseMovedRelative(mouse_x_rel, mouse_y_rel);
 }
 void GameManager::mousePressed(int mouse_x, int mouse_y, int game_mouse)
 {

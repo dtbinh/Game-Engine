@@ -7,6 +7,7 @@
 using namespace Ogre;
 
 /*
+
 double* RenderManager::getCameraPosition()
 {
    Ogre::Camera* camera = scene_manager->getCamera("Camera");
@@ -25,7 +26,47 @@ void RenderManager::setCameraPosition(double* camera_pos)
    camera->setPosition(camera_pos[0], camera_pos[1], camera_pos[2]);
    delete[] camera_pos;
 }
+
 */
+
+void RenderManager::updateCameraRotation(float _yaw, float _pitch)
+{
+   string file_str("lua_scripts/camera_scripts.lua");
+   string script_str("camera_rotate");
+
+   double params[3];
+   params[0] = _yaw;
+   params[1] = _pitch;
+   params[2] = time_since_last_frame;
+
+   double results[2];
+   
+   script_manager->executeScript(file_str, script_str, 3, 2, params, results);
+
+   camera->yaw(Degree(results[0]));
+   camera->pitch(Degree(results[1]));
+}
+
+void RenderManager::updateCameraPosition(string& game_key)
+{
+   string file_str("lua_scripts/camera_scripts.lua");
+   string script_str("camera_move");
+
+   double params[2];
+   params[0] = game_key.at(0);
+   params[1] = time_since_last_frame;
+
+   double results[3];
+   
+cout << params[0] << endl;
+   script_manager->executeScript(file_str, script_str, 2, 3, params, results);
+   camera->moveRelative(Vector3(results[0], results[1], results[2]));
+}
+
+void RenderManager::setTimeSinceLastFrame(Real tslf)
+{
+   time_since_last_frame = tslf;
+}
 
 void RenderManager::updateSceneNodeRotation(std::string& scene_node_name, float _pitch, float _yaw, float _roll)
 {
@@ -87,9 +128,14 @@ RenderManager::~RenderManager()
    delete script_manager;
 }
 
-void RenderManager::mouseMoved(int mouse_x, int mouse_y)
+void RenderManager::mouseMovedAbsolute(int mouse_x, int mouse_y)
 {
    gui_manager->injectMouseMoved(mouse_x, mouse_y);
+}
+
+void RenderManager::mouseMovedRelative(float mouse_x, float mouse_y)
+{
+   updateCameraRotation(mouse_x, mouse_y);
 }
 
 void RenderManager::mousePressed(int mouse_x, int mouse_y, int game_mouse)
